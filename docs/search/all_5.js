@@ -1,0 +1,4 @@
+var searchData=
+[
+  ['uso_3a_0',['Exemplo de uso:',['../_leitura_som_8cpp.html#autotoc_md0',1,'']]]
+];

@@ -1,0 +1,54 @@
+\doxysection{Leitura\+Som.\+cpp File Reference}
+\hypertarget{_leitura_som_8cpp}{}\label{_leitura_som_8cpp}\index{LeituraSom.cpp@{LeituraSom.cpp}}
+
+
+Exemplo de leitura de ADC na placa DK32\+MP usando interface sysfs.  
+
+
+{\ttfamily \#include $<$iostream$>$}\newline
+{\ttfamily \#include $<$fstream$>$}\newline
+{\ttfamily \#include $<$string$>$}\newline
+{\ttfamily \#include $<$unistd.\+h$>$}\newline
+\doxysubsubsection*{Classes}
+\begin{DoxyCompactItemize}
+\item 
+class \mbox{\hyperlink{class_leitura_som}{Leitura\+Som}}
+\begin{DoxyCompactList}\small\item\em Classe para leitura de valores do ADC através da interface sysfs. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsubsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+int \mbox{\hyperlink{_leitura_som_8cpp_ae66f6b31b5ad750f1fe042a706a4e3d4}{main}} ()
+\begin{DoxyCompactList}\small\item\em Função principal. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+Exemplo de leitura de ADC na placa DK32\+MP usando interface sysfs. 
+
+Este código implementa uma classe para acessar o conversor analógico-\/digital (ADC) via arquivos do sistema em Linux. Ele permite obter o valor bruto da leitura e convertê-\/lo para tensão em Volts.
+
+\begin{DoxyAuthor}{Author}
+Dálet, Manfredini e Viegas 
+\end{DoxyAuthor}
+\begin{DoxyDate}{Date}
+2025-\/09-\/02 
+\end{DoxyDate}
+
+
+\label{doc-func-members}
+\Hypertarget{_leitura_som_8cpp_doc-func-members}
+\doxysubsection{Function Documentation}
+\Hypertarget{_leitura_som_8cpp_ae66f6b31b5ad750f1fe042a706a4e3d4}\index{LeituraSom.cpp@{LeituraSom.cpp}!main@{main}}
+\index{main@{main}!LeituraSom.cpp@{LeituraSom.cpp}}
+\doxysubsubsection{\texorpdfstring{main()}{main()}}
+{\footnotesize\ttfamily \label{_leitura_som_8cpp_ae66f6b31b5ad750f1fe042a706a4e3d4} 
+int main (\begin{DoxyParamCaption}{}{}\end{DoxyParamCaption})}
+
+
+
+Função principal. 
+
+Cria um objeto \doxylink{class_leitura_som}{Leitura\+Som} associado ao canal A4 (in\+\_\+voltage13\+\_\+raw) e exibe continuamente a leitura bruta e a tensão correspondente.
+
+\begin{DoxyReturn}{Returns}
+Código de saída do programa (0 = sucesso) 
+\end{DoxyReturn}

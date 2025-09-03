@@ -1,0 +1,50 @@
+#---------------------------------------------------------------------------  
+# Project related configuration options
+#---------------------------------------------------------------------------  
+
+PROJECT_NAME           = "LeituraSom DK32MP"
+PROJECT_BRIEF          = "Leitura de ADC via sysfs na placa DK32MP"
+INPUT                  = ./LeituraSom.cpp
+RECURSIVE              = NO
+EXCLUDE                = 
+
+#---------------------------------------------------------------------------  
+# Build related configuration options
+#---------------------------------------------------------------------------  
+
+OUTPUT_DIRECTORY       = ./docs
+GENERATE_HTML          = YES
+GENERATE_LATEX         = NO
+
+#---------------------------------------------------------------------------  
+# Configuration options related to the input files
+#---------------------------------------------------------------------------  
+
+FILE_PATTERNS          = *.cpp *.h
+EXTRACT_ALL            = YES
+EXTRACT_PRIVATE        = YES
+
+#---------------------------------------------------------------------------  
+# Diagram and graph options
+#---------------------------------------------------------------------------  
+
+HAVE_DOT               = YES
+DOT_IMAGE_FORMAT       = svg
+CLASS_DIAGRAMS         = YES
+COLLABORATION_GRAPH    = YES
+CALL_GRAPH             = YES
+CALLER_GRAPH           = YES
+
+#---------------------------------------------------------------------------  
+# Source browsing options
+#---------------------------------------------------------------------------  
+
+SOURCE_BROWSER         = YES
+INLINE_SOURCES         = YES
+
+#---------------------------------------------------------------------------  
+# Search options
+#---------------------------------------------------------------------------  
+
+SEARCHENGINE           = YES
+

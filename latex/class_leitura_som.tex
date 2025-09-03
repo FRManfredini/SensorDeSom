@@ -1,0 +1,127 @@
+\doxysection{ReferÃªncia Ã  classe Leitura\+Som}
+\hypertarget{class_leitura_som}{}\label{class_leitura_som}\index{LeituraSom@{LeituraSom}}
+
+
+Classe para leitura de valores do ADC via sysfs.  
+
+
+\doxysubsubsection*{Membros pÃºblicos}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{class_leitura_som_af460ed2563c55041a683618e2d892e4a}{Leitura\+Som}} (const std\+::string \&path, float vref=3.\+3, int resolucao=65535)
+\begin{DoxyCompactList}\small\item\em Construtor da classe \doxylink{class_leitura_som}{Leitura\+Som}. \end{DoxyCompactList}\item 
+bool \mbox{\hyperlink{class_leitura_som_ad32cf0779c3c43d882389486417b0c6f}{ler}} ()
+\begin{DoxyCompactList}\small\item\em Realiza a leitura do valor bruto do ADC. \end{DoxyCompactList}\item 
+float \mbox{\hyperlink{class_leitura_som_a93f7be63c6cc2210bf5bb335c8a3affe}{get\+Tensao}} () const
+\begin{DoxyCompactList}\small\item\em Converte a última leitura para tensão (em Volts). \end{DoxyCompactList}\item 
+int \mbox{\hyperlink{class_leitura_som_af25bba3d8fccbc926d71bd604e797c6d}{get\+Leitura}} () const
+\begin{DoxyCompactList}\small\item\em Retorna o último valor bruto lido do ADC. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\doxysubsection{DescriÃ§Ã£o detalhada}
+Classe para leitura de valores do ADC via sysfs. 
+
+Esta classe encapsula a leitura de um ADC exposto como arquivo no Linux, permitindo obter o valor bruto e convertê-\/lo para tensão.
+
+Também pode ser usada em documentação Doxygen com suporte a Graphviz, para geração de diagramas de classes e chamadas.
+
+\begin{DoxyNote}{Nota}
+Requer acesso a arquivos do diretório {\ttfamily /sys/bus/iio/devices/}. 
+\end{DoxyNote}
+
+
+\label{doc-constructors}
+\Hypertarget{class_leitura_som_doc-constructors}
+\doxysubsection{DocumentaÃ§Ã£o dos Construtores \& Destrutor}
+\Hypertarget{class_leitura_som_af460ed2563c55041a683618e2d892e4a}\index{LeituraSom@{LeituraSom}!LeituraSom@{LeituraSom}}
+\index{LeituraSom@{LeituraSom}!LeituraSom@{LeituraSom}}
+\doxysubsubsection{\texorpdfstring{LeituraSom()}{LeituraSom()}}
+{\footnotesize\ttfamily \label{class_leitura_som_af460ed2563c55041a683618e2d892e4a} 
+Leitura\+Som\+::\+Leitura\+Som (\begin{DoxyParamCaption}\item[{const std\+::string \&}]{path}{, }\item[{float}]{vref}{ = {\ttfamily 3.3}, }\item[{int}]{resolucao}{ = {\ttfamily 65535}}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Construtor da classe \doxylink{class_leitura_som}{Leitura\+Som}. 
+
+
+\begin{DoxyParams}{ParÃ¢metros}
+{\em path} & Caminho do arquivo do ADC no sysfs \\
+\hline
+{\em vref} & Tensão de referência (padrão = 3.\+3 V) \\
+\hline
+{\em resolucao} & Resolução máxima do ADC (padrão = 65535) \\
+\hline
+\end{DoxyParams}
+
+
+\label{doc-func-members}
+\Hypertarget{class_leitura_som_doc-func-members}
+\doxysubsection{DocumentaÃ§Ã£o das funÃ§Ãµes}
+\Hypertarget{class_leitura_som_af25bba3d8fccbc926d71bd604e797c6d}\index{LeituraSom@{LeituraSom}!getLeitura@{getLeitura}}
+\index{getLeitura@{getLeitura}!LeituraSom@{LeituraSom}}
+\doxysubsubsection{\texorpdfstring{getLeitura()}{getLeitura()}}
+{\footnotesize\ttfamily \label{class_leitura_som_af25bba3d8fccbc926d71bd604e797c6d} 
+int Leitura\+Som\+::get\+Leitura (\begin{DoxyParamCaption}{}{}\end{DoxyParamCaption}) const\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Retorna o último valor bruto lido do ADC. 
+
+\begin{DoxyReturn}{Retorna}
+Valor inteiro da leitura. 
+\end{DoxyReturn}
+Este Ã© o diagrama das funÃ§Ãµes que utilizam esta funÃ§Ã£o\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=267pt]{class_leitura_som_af25bba3d8fccbc926d71bd604e797c6d_icgraph}
+\end{center}
+\end{figure}
+\Hypertarget{class_leitura_som_a93f7be63c6cc2210bf5bb335c8a3affe}\index{LeituraSom@{LeituraSom}!getTensao@{getTensao}}
+\index{getTensao@{getTensao}!LeituraSom@{LeituraSom}}
+\doxysubsubsection{\texorpdfstring{getTensao()}{getTensao()}}
+{\footnotesize\ttfamily \label{class_leitura_som_a93f7be63c6cc2210bf5bb335c8a3affe} 
+float Leitura\+Som\+::get\+Tensao (\begin{DoxyParamCaption}{}{}\end{DoxyParamCaption}) const\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Converte a última leitura para tensão (em Volts). 
+
+\begin{DoxyReturn}{Retorna}
+Valor em Volts correspondente à leitura.
+\end{DoxyReturn}
+A conversão é feita usando a fórmula\+: $ V = \frac{leitura \cdot VREF}{RESOLUCAO} $ Este Ã© o diagrama das funÃ§Ãµes que utilizam esta funÃ§Ã£o\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=270pt]{class_leitura_som_a93f7be63c6cc2210bf5bb335c8a3affe_icgraph}
+\end{center}
+\end{figure}
+\Hypertarget{class_leitura_som_ad32cf0779c3c43d882389486417b0c6f}\index{LeituraSom@{LeituraSom}!ler@{ler}}
+\index{ler@{ler}!LeituraSom@{LeituraSom}}
+\doxysubsubsection{\texorpdfstring{ler()}{ler()}}
+{\footnotesize\ttfamily \label{class_leitura_som_ad32cf0779c3c43d882389486417b0c6f} 
+bool Leitura\+Som\+::ler (\begin{DoxyParamCaption}{}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Realiza a leitura do valor bruto do ADC. 
+
+\begin{DoxyReturn}{Retorna}
+true se a leitura foi realizada com sucesso, false caso contrário.
+\end{DoxyReturn}
+Abre o arquivo sysfs correspondente ao ADC, lê o valor inteiro e armazena em leitura. Este Ã© o diagrama das funÃ§Ãµes que utilizam esta funÃ§Ã£o\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=235pt]{class_leitura_som_ad32cf0779c3c43d882389486417b0c6f_icgraph}
+\end{center}
+\end{figure}
+
+
+A documentaÃ§Ã£o para esta classe foi gerada a partir do seguinte ficheiro\+:\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{_leitura_som_8cpp}{Leitura\+Som.\+cpp}}\end{DoxyCompactItemize}

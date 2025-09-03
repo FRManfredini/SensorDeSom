@@ -1,0 +1,2 @@
+﻿  LeituraSom.cpp
+C:\Users\ferna\source\repos\Sensor de Som\Sensor de Som\LeituraSom.cpp(4,10): error C1083: Não é possível abrir arquivo incluir: 'unistd.h': No such file or directory
