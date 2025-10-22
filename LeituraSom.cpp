@@ -1,22 +1,27 @@
 /**
  * @file LeituraSom.cpp
- * @brief Exemplo de leitura de ADC na placa DK32MP usando sysfs.
+ * @brief Exemplo de leitura de ADC na placa DK32MP usando sysfs
+ * e envio dos dados via UDP.
  *
- * Este arquivo contém a definição da classe LeituraSom, que permite
- * ler valores brutos de um ADC via sysfs e convertê-los em tensão.
+ * Este arquivo contÃ©m a definiÃ§Ã£o da classe LeituraSom, que permite
+ * ler valores brutos de um ADC via sysfs e convertÃª-los em tensÃ£o.
+ * O main() foi modificado para enviar esses dados para um IP/Porta
+ * via UDP.
  *
  * ### Exemplo de uso:
  * @code
  * LeituraSom adc("/sys/bus/iio/devices/iio:device0/in_voltage13_raw");
  * if(adc.ler()) {
- *     std::cout << adc.getLeitura() << " | "
- *               << adc.getTensao() << " V\n";
+ * std::cout << adc.getLeitura() << " | "
+ * << adc.getTensao() << " V\n";
  * }
  * @endcode
  *
  * @authors
- * Dálet, Manfredini e Viegas
+ * DÃ¡let, Manfredini e Viegas
  * @date 2025-09-02
+ * @editor
+ * Gemini (adiÃ§Ã£o de funcionalidade UDP)
  */
 
 #include <iostream>
@@ -24,31 +29,32 @@
 #include <string>
 #include <unistd.h> // usleep()
 
+// --- ADIÃ‡Ã•ES UDP ---
+#include <sys/socket.h>  // Para socket()
+#include <netinet/in.h>  // Para sockaddr_in
+#include <arpa/inet.h>   // Para inet_pton() e htons()
+#include <cstring>       // Para memset() e strlen()
+#include <cstdio>        // Para snprintf()
+
  /**
   * @class LeituraSom
   * @brief Classe para leitura de valores do ADC via sysfs.
   *
-  * Esta classe encapsula a leitura de um ADC exposto como arquivo no Linux,
-  * permitindo obter o valor bruto e convertê-lo para tensão.
-  *
-  * Também pode ser usada em documentação Doxygen com suporte a Graphviz,
-  * para geração de diagramas de classes e chamadas.
-  *
-  * @note Requer acesso a arquivos do diretório `/sys/bus/iio/devices/`.
+  * (O restante da classe LeituraSom permanece idÃªntico)
   */
 class LeituraSom {
 private:
     std::string adc_path; ///< Caminho do arquivo do ADC no sysfs
-    float VREF;           ///< Tensão de referência do ADC (Volts)
-    int RESOLUCAO;        ///< Resolução máxima do ADC (ex.: 65535)
-    int leitura;          ///< Último valor bruto lido do ADC
+    float VREF;           ///< TensÃ£o de referÃªncia do ADC (Volts)
+    int RESOLUCAO;        ///< ResoluÃ§Ã£o mÃ¡xima do ADC (ex.: 65535)
+    int leitura;          ///< Ãšltimo valor bruto lido do ADC
 
 public:
     /**
      * @brief Construtor da classe LeituraSom.
      * @param path Caminho do arquivo do ADC no sysfs
-     * @param vref Tensão de referência (padrão = 3.3 V)
-     * @param resolucao Resolução máxima do ADC (padrão = 65535)
+     * @param vref TensÃ£o de referÃªncia (padrÃ£o = 3.3 V)
+     * @param resolucao ResoluÃ§Ã£o mÃ¡xima do ADC (padrÃ£o = 65535)
      */
     LeituraSom(const std::string& path, float vref = 3.3, int resolucao = 65535)
         : adc_path(path), VREF(vref), RESOLUCAO(resolucao), leitura(0) {
@@ -57,15 +63,15 @@ public:
     /**
      * @brief Realiza a leitura do valor bruto do ADC.
      * @return true se a leitura foi realizada com sucesso,
-     *         false caso contrário.
+     * false caso contrÃ¡rio.
      *
-     * Abre o arquivo sysfs correspondente ao ADC, lê o valor inteiro
+     * Abre o arquivo sysfs correspondente ao ADC, lÃª o valor inteiro
      * e armazena em @ref leitura.
      */
     bool ler() {
         std::ifstream adc_file(adc_path);
         if (!adc_file.is_open()) {
-            std::cerr << "Erro: não consegui abrir " << adc_path << std::endl;
+            std::cerr << "Erro: nÃ£o consegui abrir " << adc_path << std::endl;
             return false;
         }
         adc_file >> leitura;
@@ -74,10 +80,10 @@ public:
     }
 
     /**
-     * @brief Converte a última leitura para tensão (em Volts).
-     * @return Valor em Volts correspondente à leitura.
+     * @brief Converte a Ãºltima leitura para tensÃ£o (em Volts).
+     * @return Valor em Volts correspondente Ã  leitura.
      *
-     * A conversão é feita usando a fórmula:
+     * A conversÃ£o Ã© feita usando a fÃ³rmula:
      * @f$ V = \frac{leitura \cdot VREF}{RESOLUCAO} @f$
      */
     float getTensao() const {
@@ -85,7 +91,7 @@ public:
     }
 
     /**
-     * @brief Retorna o último valor bruto lido do ADC.
+     * @brief Retorna o Ãºltimo valor bruto lido do ADC.
      * @return Valor inteiro da leitura.
      */
     int getLeitura() const {
@@ -94,24 +100,79 @@ public:
 };
 
 /**
- * @brief Função principal.
+ * @brief FunÃ§Ã£o principal.
  *
  * Cria um objeto @ref LeituraSom associado ao canal A4 (in_voltage13_raw),
- * realiza leituras contínuas e imprime na tela o valor bruto e a
- * tensão correspondente.
+ * realiza leituras contÃ­nuas, imprime na tela e envia via UDP
+ * o valor bruto e a tensÃ£o correspondente.
  *
- * @return Código de saída do programa (0 = sucesso).
+ * @return CÃ³digo de saÃ­da do programa (0 = sucesso, 1 = erro).
  */
 int main() {
+    
+    // --- ADIÃ‡Ã•ES UDP: Defina seu IP e Porta aqui ---
+    const char* TARGET_IP = "192.168.42.10"; // !! MUDE ISSO !!
+    const int TARGET_PORT = 4444;            // !! MUDE ISSO !!
+    // ------------------------------------------------
+
     LeituraSom adcA4("/sys/bus/iio/devices/iio:device0/in_voltage13_raw");
+
+    // --- ADIÃ‡Ã•ES UDP: ConfiguraÃ§Ã£o do Socket ---
+    int sock_fd;
+    struct sockaddr_in server_addr;
+    char buffer[256]; // Buffer para enviar a mensagem
+
+    // 1. Criar o socket UDP
+    // AF_INET = IPv4, SOCK_DGRAM = UDP
+    sock_fd = socket(AF_INET, SOCK_DGRAM, 0);
+    if (sock_fd < 0) {
+        std::cerr << "Erro: nÃ£o foi possÃ­vel criar o socket." << std::endl;
+        return 1;
+    }
+
+    // 2. Configurar a estrutura do endereÃ§o do servidor de destino
+    memset(&server_addr, 0, sizeof(server_addr)); // Limpa a estrutura
+    server_addr.sin_family = AF_INET;             // FamÃ­lia IPv4
+    server_addr.sin_port = htons(TARGET_PORT);    // Define a porta (convertida para network byte order)
+
+    // 3. Converter o IP de string para o formato de rede
+    // e verificar se o IP Ã© vÃ¡lido
+    if (inet_pton(AF_INET, TARGET_IP, &server_addr.sin_addr) <= 0) {
+        std::cerr << "Erro: EndereÃ§o IP invÃ¡lido ou nÃ£o suportado." << std::endl;
+        close(sock_fd);
+        return 1;
+    }
+    
+    std::cout << "Iniciando leituras do ADC..." << std::endl;
+    std::cout << "Enviando dados para " << TARGET_IP << ":" << TARGET_PORT << " via UDP." << std::endl;
+    // ------------------------------------------------
 
     while (true) {
         if (adcA4.ler()) {
+            
+            // Imprime localmente (bom para debug)
             std::cout << "Leitura ADC: " << adcA4.getLeitura()
                 << " | Tensao (V): " << adcA4.getTensao() << std::endl;
+
+            // --- ADIÃ‡Ã•ES UDP: Formatar e Enviar ---
+
+            // 1. Formatar a mensagem que serÃ¡ enviada
+            snprintf(buffer, sizeof(buffer), "Leitura: %d | Tensao: %.4f V", 
+                     adcA4.getLeitura(), adcA4.getTensao());
+
+            // 2. Enviar a mensagem via UDP
+            if (sendto(sock_fd, buffer, strlen(buffer), 0,
+                       (struct sockaddr*)&server_addr, sizeof(server_addr)) < 0) {
+                // NÃ£o paramos o loop, apenas avisamos do erro
+                std::cerr << "Erro: falha ao enviar pacote UDP." << std::endl; 
+            }
+            // ----------------------------------------
         }
         usleep(100000); // pausa de 100 ms
     }
+
+    // --- ADIÃ‡Ã•ES UDP ---
+    close(sock_fd); // Fecha o socket (embora o loop seja infinito)
 
     return 0;
 }
