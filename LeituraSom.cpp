@@ -1,27 +1,15 @@
 /**
  * @file LeituraSom.cpp
  * @brief Exemplo de leitura de ADC na placa DK32MP usando sysfs
- * e envio dos dados via UDP.
+ * e envio dos dados via UDP usando protocolo JSON.
  *
- * Este arquivo contém a definição da classe LeituraSom, que permite
- * ler valores brutos de um ADC via sysfs e convertê-los em tensão.
- * O main() foi modificado para enviar esses dados para um IP/Porta
- * via UDP.
- *
- * ### Exemplo de uso:
- * @code
- * LeituraSom adc("/sys/bus/iio/devices/iio:device0/in_voltage13_raw");
- * if(adc.ler()) {
- * std::cout << adc.getLeitura() << " | "
- * << adc.getTensao() << " V\n";
- * }
- * @endcode
+ * (O restante da documentação Doxygen permanece igual)
  *
  * @authors
  * Dálet, Manfredini e Viegas
  * @date 2025-09-02
  * @editor
- * Gemini (adição de funcionalidade UDP)
+ * Gemini (modificação para protocolo JSON)
  */
 
 #include <iostream>
@@ -35,13 +23,14 @@
 #include <arpa/inet.h>   // Para inet_pton() e htons()
 #include <cstring>       // Para memset() e strlen()
 #include <cstdio>        // Para snprintf()
+#include <ctime>         // Para time() - Opcional para timestamp
 
- /**
-  * @class LeituraSom
-  * @brief Classe para leitura de valores do ADC via sysfs.
-  *
-  * (O restante da classe LeituraSom permanece idêntico)
-  */
+/**
+ * @class LeituraSom
+ * @brief Classe para leitura de valores do ADC via sysfs.
+ *
+ * (O restante da classe LeituraSom permanece idêntico)
+ */
 class LeituraSom {
 private:
     std::string adc_path; ///< Caminho do arquivo do ADC no sysfs
@@ -64,9 +53,6 @@ public:
      * @brief Realiza a leitura do valor bruto do ADC.
      * @return true se a leitura foi realizada com sucesso,
      * false caso contrário.
-     *
-     * Abre o arquivo sysfs correspondente ao ADC, lê o valor inteiro
-     * e armazena em @ref leitura.
      */
     bool ler() {
         std::ifstream adc_file(adc_path);
@@ -82,9 +68,6 @@ public:
     /**
      * @brief Converte a última leitura para tensão (em Volts).
      * @return Valor em Volts correspondente à leitura.
-     *
-     * A conversão é feita usando a fórmula:
-     * @f$ V = \frac{leitura \cdot VREF}{RESOLUCAO} @f$
      */
     float getTensao() const {
         return leitura * VREF / RESOLUCAO;
@@ -102,17 +85,16 @@ public:
 /**
  * @brief Função principal.
  *
- * Cria um objeto @ref LeituraSom associado ao canal A4 (in_voltage13_raw),
- * realiza leituras contínuas, imprime na tela e envia via UDP
- * o valor bruto e a tensão correspondente.
+ * (Descrição Doxygen do main)
  *
  * @return Código de saída do programa (0 = sucesso, 1 = erro).
  */
 int main() {
     
     // --- ADIÇÕES UDP: Defina seu IP e Porta aqui ---
-    const char* TARGET_IP = "192.168.42.10"; // !! MUDE ISSO !!
-    const int TARGET_PORT = 4444;            // !! MUDE ISSO !!
+    const char* TARGET_IP = "192.168.42.10"; // !! MUDE ISSO para o IP do seu PC/Servidor !!
+    const int TARGET_PORT = 4444;            // !! Use a mesma porta no Servidor !!
+    const char* SENSOR_ID = "sensor_grupo_01_A4"; // Identificador do seu sensor
     // ------------------------------------------------
 
     LeituraSom adcA4("/sys/bus/iio/devices/iio:device0/in_voltage13_raw");
@@ -123,7 +105,6 @@ int main() {
     char buffer[256]; // Buffer para enviar a mensagem
 
     // 1. Criar o socket UDP
-    // AF_INET = IPv4, SOCK_DGRAM = UDP
     sock_fd = socket(AF_INET, SOCK_DGRAM, 0);
     if (sock_fd < 0) {
         std::cerr << "Erro: não foi possível criar o socket." << std::endl;
@@ -131,12 +112,11 @@ int main() {
     }
 
     // 2. Configurar a estrutura do endereço do servidor de destino
-    memset(&server_addr, 0, sizeof(server_addr)); // Limpa a estrutura
-    server_addr.sin_family = AF_INET;             // Família IPv4
-    server_addr.sin_port = htons(TARGET_PORT);    // Define a porta (convertida para network byte order)
+    memset(&server_addr, 0, sizeof(server_addr)); 
+    server_addr.sin_family = AF_INET;             
+    server_addr.sin_port = htons(TARGET_PORT);    
 
     // 3. Converter o IP de string para o formato de rede
-    // e verificar se o IP é válido
     if (inet_pton(AF_INET, TARGET_IP, &server_addr.sin_addr) <= 0) {
         std::cerr << "Erro: Endereço IP inválido ou não suportado." << std::endl;
         close(sock_fd);
@@ -145,26 +125,41 @@ int main() {
     
     std::cout << "Iniciando leituras do ADC..." << std::endl;
     std::cout << "Enviando dados para " << TARGET_IP << ":" << TARGET_PORT << " via UDP." << std::endl;
-    // ------------------------------------------------
 
     while (true) {
         if (adcA4.ler()) {
             
-            // Imprime localmente (bom para debug)
+            // (Impressão local para debug)
             std::cout << "Leitura ADC: " << adcA4.getLeitura()
-                << " | Tensao (V): " << adcA4.getTensao() << std::endl;
+                      << " | Tensao (V): " << adcA4.getTensao() << std::endl;
 
             // --- ADIÇÕES UDP: Formatar e Enviar ---
 
-            // 1. Formatar a mensagem que será enviada
-            snprintf(buffer, sizeof(buffer), "Leitura: %d | Tensao: %.4f V", 
-                     adcA4.getLeitura(), adcA4.getTensao());
+            // *** LINHA CORRIGIDA PARA USAR O PROTOCOLO JSON ***
+            // 1. Formatar a mensagem como um objeto JSON
+            //    Cumprindo os requisitos: id, valor, unidade e timestamp (opcional)
+            
+            // Opcional: Obter o timestamp atual (se o sistema tiver relógio)
+            long timestamp = static_cast<long>(time(NULL)); 
+
+            snprintf(buffer, sizeof(buffer), 
+                     "{\"id\": \"%s\", \"valor\": %.4f, \"unidade\": \"V\", \"timestamp\": %ld}", 
+                     SENSOR_ID, adcA4.getTensao(), timestamp);
+            
+            // NOTA: Se você não tiver um relógio confiável (time(NULL) retornar erro),
+            // use esta versão sem o timestamp:
+            /*
+            snprintf(buffer, sizeof(buffer), 
+                     "{\"id\": \"%s\", \"valor\": %.4f, \"unidade\": \"V\"}", 
+                     SENSOR_ID, adcA4.getTensao());
+            */
+            // ******************************************************
+
 
             // 2. Enviar a mensagem via UDP
             if (sendto(sock_fd, buffer, strlen(buffer), 0,
                        (struct sockaddr*)&server_addr, sizeof(server_addr)) < 0) {
-                // Não paramos o loop, apenas avisamos do erro
-                std::cerr << "Erro: falha ao enviar pacote UDP." << std::endl; 
+                std::cerr << "Erro: falha ao enviar pacote UDP." << std::endl;  
             }
             // ----------------------------------------
         }

@@ -1,0 +1,13 @@
+# Python
+__pycache__/
+*.pyc
+
+# C/C++ compilados
+*.o
+*.out
+*.exe
+leitura_som_dk32mp  # <- O nome do seu executável compilado!
+
+# Arquivos de Sistema
+.DS_Store
+
