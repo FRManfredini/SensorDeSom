@@ -4,7 +4,7 @@ Na busca de proteger e monitorar uma carga contra os riscos de violação, roubo
 
 Para criar esse monitoramento. Embarcamos no kit de desenvolvimento um código em C++ que, em tempo real, mostra os níveis de ruído no ambiente através de uma proporcionalidade entre número total de bits e tensão observada no sensor. Sendo possível determinar qual a tensão referente ao limiar da voz humana e ruídos padrão do transporte. Em seguida, com o uso desses dados será organizada uma plataforma visual para a vizualização e alertas em caso de fuga desses parâmetros estabelecidos.
 
-Além disso, uma **interface visual** exibe dinamicamente os dados, mostrando:
+Finalmente, utilizando um protocolo UDP, transmitimos os dados lidos pelo monitoramento para uma interface visual em qualquer computador. Garantindo visualização e documentação dos processos e leituras realizadas pelo sensor, que até então eram de difícil confirmação. De modo a implementar as seguintes funcionalidades:
 
 a) **Atualização em tempo real da leitura do sensor**  
 b) **Histórico temporal das últimas leituras (60 s)**  
@@ -124,15 +124,15 @@ A documentação em HTML e LaTeX/PDF será criada em ./html e ./latex.
 Abra o arquivo html/index.html no navegador para visualizar a documentação.
 
 Ao final, a interface deverá exibir resultados da seguinte forma:
-![Texto alternativo](docs/RegistroDados_t=0.jpeg)
+![Interface no tempo inicial](docs/RegistroDados_t=0.jpeg)
 Iniciando em branco.
-![Texto alternativo](docs/RegistroDados_t=1.jpeg)
+![Interface no tempo intermediário](docs/RegistroDados_t=1.jpeg)
 Sendo preenchido gradualmente.
-![Texto alternativo](docs/RegistroDados_t=2.jpeg)
+![Interface no após um tempo suficientemente longo](docs/RegistroDados_t=2.jpeg)
 Até estabilizar em um formato tipo janela flutuante.
 
 Além disso, existe a opção de salvar os dados lidos em um log como:
-![Texto alternativo](docs/ArquivoLog.jpeg)
+![Exemplo de arquivo log de dados](docs/ArquivoLog.jpeg)
 
 
 # Estrutura do código
